@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# shellcheck disable=SC2034           # Silence warnings regarding unused variables globally.
+# shellcheck disable=SC2034            # Silence warnings regarding unused variables globally.
 
 ### GLOBAL CONSTANTS ###
 # ANSI ESCAPE SEQUENCES
@@ -93,7 +93,12 @@ RDP_IP=""            # Imported variable.
 VM_NAME="RDPWindows" # Name of the Windows VM (FOR 'libvirt' ONLY).
 WAFLAVOR="docker"    # Imported variable.
 RDP_SCALE=100        # Imported variable.
-RDP_FLAGS=""         # Imported variable.
+
+# --- CUSTOMIZAÇÃO ADOBE ---
+# Modificado para injetar máxima fidelidade gráfica (AVC444/32bpp) e compartilhar a sua pasta Home do Linux com o Windows
+RDP_FLAGS="/gfx:AVC444 /network:lan /bpp:32 /drive:Home,${HOME}"
+# --------------------------
+
 DEBUG="true"         # Imported variable.
 FREERDP_COMMAND=""   # Imported variable.
 
@@ -133,8 +138,8 @@ function waTerminateScript() {
 # Role: Displays usage information for the script.
 function waUsage() {
     echo -e "Usage:
-  ${COMMAND_TEXT}    --user${CLEAR_TEXT}                                        # Install WinApps and selected applications in ${HOME}
-  ${COMMAND_TEXT}    --system${CLEAR_TEXT}                                      # Install WinApps and selected applications in /usr
+  ${COMMAND_TEXT}    --user${CLEAR_TEXT}                                       # Install WinApps and selected applications in ${HOME}
+  ${COMMAND_TEXT}    --system${CLEAR_TEXT}                                     # Install WinApps and selected applications in /usr
   ${COMMAND_TEXT}    --user --setupAllOfficiallySupportedApps${CLEAR_TEXT}      # Install WinApps and all officially supported applications in ${HOME}
   ${COMMAND_TEXT}    --system --setupAllOfficiallySupportedApps${CLEAR_TEXT}    # Install WinApps and all officially supported applications in /usr
   ${COMMAND_TEXT}    --user --uninstall${CLEAR_TEXT}                            # Uninstall everything in ${HOME}
@@ -503,6 +508,11 @@ function waCheckExistingInstall() {
 # Name: 'waFixScale'
 # Role: Since FreeRDP only supports '/scale' values of 100, 140 or 180, find the closest supported argument to the user's configuration.
 function waFixScale() {
+    # --- CUSTOMIZAÇÃO ADOBE ---
+    # Pula a validação para permitir escalas customizadas (125, 150, etc) sem o script forçar 100/140/180
+    return 0
+    # --------------------------
+
     # Define variables.
     local OLD_SCALE=100
     local VALID_SCALE_1=100
